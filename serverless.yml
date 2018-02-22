@@ -1,0 +1,18 @@
+service: ${self:custom.metadata-spreadsheet-tools.name}
+
+frameworkVersion: ">=1.0.0 <2.0.0"
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  metadata-spreadsheet-tools: ${file(metadata-spreadsheet-tools.yml)}
+
+provider:
+  name: aws
+  region: us-east-1
+
+functions:
+  onEvent:
+    runtime: python3.6
+    handler: handler.on_event

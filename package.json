@@ -1,0 +1,25 @@
+{
+  "name": "metadata-spreadsheet-tools",
+  "version": "1.0.0",
+  "description": "Tools for generating metadata spreadsheets",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HumanCellAtlas/metadata-spreadsheet-tools.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/HumanCellAtlas/metadata-spreadsheet-tools/issues"
+  },
+  "homepage": "https://github.com/HumanCellAtlas/metadata-spreadsheet-tools#readme",
+  "dependencies": {
+    "aws-sdk": "^2.188.0",
+    "serverless-python-requirements": "^3.0.9"
+  },
+  "devDependencies": {
+    "serverless": "^1.26.0"
+  }
+}
