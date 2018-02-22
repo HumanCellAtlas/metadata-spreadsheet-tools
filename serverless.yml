@@ -10,9 +10,14 @@ custom:
 
 provider:
   name: aws
+  runtime: python3.6
   region: us-east-1
 
 functions:
-  onEvent:
-    runtime: python3.6
-    handler: handler.on_event
+  generate:
+    handler: handler.generate
+    events:
+      - http:
+          path: generate
+          method: post
+          cors: true
