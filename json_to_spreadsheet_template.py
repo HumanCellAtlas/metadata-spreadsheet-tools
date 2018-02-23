@@ -1,14 +1,13 @@
 import logging
+from optparse import OptionParser
+
 import requests
 from openpyxl import Workbook
 from openpyxl.styles import Font
-from optparse import OptionParser
 
 # hard coded tab ordering
-tab_ordering = ["project", "project.publications", "contact", "organism", "familial_relationship",
-                "specimen_from_organism", "cell_suspension",
-                "cell_line", "cell_line.publications", "organoid", "collection_process", "dissociation_process",
-                "enrichment_process", "library_preparation_process",
+tab_ordering = ["project", "project.publications", "contact", "donor_organism", "familial_relationship", "specimen_from_organism", "cell_suspension",
+                "cell_line", "cell_line.publications", "organoid", "collection_process", "dissociation_process", "enrichment_process", "library_preparation_process",
                 "sequencing_process", "purchased_reagents", "protocol", "sequence_file"]
 
 
@@ -17,13 +16,13 @@ class SpreadsheetCreator:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    def generateSpreadsheet(self, baseUri, schemas, dependencies, output):
+    def generate_spreadsheet(self, schema_base_uri, schema_types, schema_modules, output):
         values = {}
         try:
             # for each schema, gather the values for the relevant tab(s)
-            for schema in schemas:
-                print(baseUri + schema)
-                v = self._gatherValues(baseUri + schema, dependencies)
+            for schema_type in schema_types:
+                print(schema_base_uri + schema_type)
+                v = self._gather_values(schema_base_uri + schema_type, schema_modules)
                 values.update(v)
             # Build the spreadsheet from the retrieved values
             self._buildSpreadsheet(values, output)
@@ -31,12 +30,12 @@ class SpreadsheetCreator:
             self.logger.error("Error:" + str(e))
             raise e
 
-    def _gatherValues(self, schema, dependencies):
+    def _gather_values(self, schema_uri, schema_modules):
         # get the schema of HTTP
-        req = requests.get(schema)
+        req = requests.get(schema_uri)
 
         # if the schema is successfully retrieved, process it, else return an error message
-        if (req.status_code == requests.codes.ok):
+        if req.status_code == requests.codes.ok:
             jsonRaw = req.json()
 
             entities = {}
@@ -51,8 +50,8 @@ class SpreadsheetCreator:
                 # their own spreadsheet tab
                 if ("items" in properties[prop] and "$ref" in properties[prop]["items"]):
                     module = properties[prop]["items"]["$ref"]
-                    if "ontology" not in module and module in dependencies:
-                        module_values = self._gatherValues(module, None)
+                    if "ontology" not in module and module in schema_modules:
+                        module_values = self._gather_values(module, None)
                         # add primary entity ID to cross reference with main entity
                         for primary in values:
                             if "ID" in primary["header"]:
@@ -75,8 +74,8 @@ class SpreadsheetCreator:
                 # directly to the properties for this sheet
                 elif ("$ref" in properties[prop]):
                     module = properties[prop]["$ref"]
-                    if "ontology" not in module and ("_core" in module or module in dependencies):
-                        module_values = self._gatherValues(module, None)
+                    if "ontology" not in module and ("_core" in module or module in schema_modules):
+                        module_values = self._gather_values(module, None)
                         for key in module_values.keys():
                             # special case for naming UMI barcodes
                             if prop == "umi_barcode":
@@ -102,19 +101,15 @@ class SpreadsheetCreator:
                     values.append({"header": properties[prop]["user_friendly"], "description": description,
                                    "example": example})
 
-            if "type/biomaterial" in schema:
+            if "type/biomaterial" in schema_uri:
                 values.append(
                     {"header": "Process IDs", "description": "IDs of processes for which this biomaterial is an input",
                      "example": None})
-            if "type/process" in schema:
+            if "type/process" in schema_uri:
                 values.append(
                     {"header": "Protocol IDs", "description": "IDs of protocols which this process implements",
                      "example": None})
-            # if "module/process/purchased_reagents" in schema:
-            #     values.append(
-            #         {"header": "Process ID", "description": "ID of the process in which this reagent was used",
-            #          "example": None})
-            if "type/file" in schema:
+            if "type/file" in schema_uri:
                 values.append(
                     {"header": "Biomaterial ID", "description": "ID of the biomaterial to which this file relates",
                      "example": None})
@@ -127,7 +122,7 @@ class SpreadsheetCreator:
             return entities
 
         else:
-            self.logger.error(schema + " does not exist")
+            self.logger.error(schema_uri + " does not exist")
 
     def _buildSpreadsheet(self, values, outputLocation):
         wb = Workbook()
@@ -156,7 +151,7 @@ class SpreadsheetCreator:
 
         # remove the blank worksheet that is automatically created with the spreadsheet
         if "Sheet" in wb.sheetnames:
-            wb.remove(wb.get_sheet_by_name("Sheet"))
+            wb.remove(wb["Sheet"])
 
         wb.save(filename=outputLocation)
 
@@ -177,14 +172,15 @@ if __name__ == '__main__':
     # if not options.schema_uri:
     #     print ("You must supply a base schema URI for the metadata")
     #     exit(2)
+
     schema_types = options.schema_types.split(",")
     dependencies = options.include.split(",")
 
-    for index, dependency in enumerate(dependencies):
-        dependencies[index] = options.schema_uri + dependency
+# for index, dependency in enumerate(dependencies):
+#    dependencies[index] = options.schema_uri + dependency
 
     generator = SpreadsheetCreator()
-    generator.generateSpreadsheet(options.schema_uri, schema_types, dependencies, options.output)
+    generator.generate_spreadsheet(options.schema_uri, schema_types, dependencies, options.output)
 
 # Example run:
 # -s "https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/v5_prototype/json_schema/"
@@ -197,3 +193,5 @@ if __name__ == '__main__':
 # -t "type/project/project.json,type/biomaterial/organism.json,type/biomaterial/organism.json,type/biomaterial/specimen_from_organism.json,type/biomaterial/cell_suspension.json,type/biomaterial/cell_line.json,type/biomaterial/organoid.json,type/process/biomaterial_collection/collection_process.json,type/process/biomaterial_collection/dissociation_process.json,type/process/biomaterial_collection/enrichment_process.json,type/process/sequencing/library_preparation_process.json,type/process/sequencing/sequencing_process.json,type/protocol/protocol.json,type/file/sequence_file.json"
 # -i "module/project/contact.json,module/project/publication.json,module/biomaterial/cell_morphology.json,module/biomaterial/death.json,module/biomaterial/homo_sapiens_specific.json,module/biomaterial/medical_history.json,module/biomaterial/non_homo_sapiens_specific.json,module/biomaterial/state_of_specimen.json,module/biomaterial/familial_relationship.json,module/process/sequencing/barcode.json,module/process/sequencing/well.json"
 # -o "/Users/dwelter/Development/HCA/metadata-schema/src/spreadsheet_test.xlsx"
+
+# python json_to_spreadsheet_template.py -s "https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/v5_prototype/json_schema/" -t "type/biomaterial/organism.json,type/process/sequencing/library_preparation_process.json" -i "module/biomaterial/homo_sapiens_specific.json,module/biomaterial/familial_relationship.json,module/process/sequencing/barcode.json" -o "/Users/dwelter/Development/HCA/metadata-schema/src/spreadsheet_test.xlsx"

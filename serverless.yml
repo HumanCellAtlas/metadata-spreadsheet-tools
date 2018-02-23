@@ -4,9 +4,14 @@ frameworkVersion: ">=1.0.0 <2.0.0"
 
 plugins:
   - serverless-python-requirements
+  - serverless-apigw-binary
+  - serverless-pseudo-parameters
 
 custom:
   metadata-spreadsheet-tools: ${file(metadata-spreadsheet-tools.yml)}
+  apigwBinary:
+    types:
+      - 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
 provider:
   name: aws

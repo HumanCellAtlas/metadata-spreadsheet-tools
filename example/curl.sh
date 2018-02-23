@@ -1,25 +1,4 @@
-# Metadata Spreadsheet Tools
-Tools for generating metadata spreadsheets
-
-## Commands
-Execute
-```
-serverless invoke local --function generate --path ./example/generate.json
-```
-
-Deploy
-```
-serverless deploy -v
-```
-
-Check logs
-```
-serverless logs --function generate
-```
-
-## Curl Command
-
-```
+#!/usr/bin/env bash
 curl -X POST \
   https://xq7fhrn5t4.execute-api.us-east-1.amazonaws.com/dev/generate \
   -H 'Accept: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' \
@@ -59,4 +38,3 @@ curl -X POST \
   ],
   "output_filename": "output.xlsx"
 }'
-```
