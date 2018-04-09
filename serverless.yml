@@ -12,6 +12,8 @@ custom:
   apigwBinary:
     types:
       - 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  pythonRequirements:
+    dockerizePip: true
 
 provider:
   name: aws

@@ -4,6 +4,7 @@ from optparse import OptionParser
 import requests
 from openpyxl import Workbook
 from openpyxl.styles import Font
+from openpyxl.styles import PatternFill
 
 # hard coded tab ordering
 tab_ordering = ["project", "project.publications", "contact", "donor_organism", "familial_relationship",
@@ -25,7 +26,7 @@ class SpreadsheetCreator:
 
             for index, schema_module in enumerate(schema_modules):
                 schema_modules[index] = schema_base_uri + schema_module
-                
+
             # for each schema, gather the values for the relevant tab(s)
             for schema_type in schema_types:
                 v = self._gather_values(schema_base_uri + schema_type, schema_modules)
@@ -51,7 +52,8 @@ class SpreadsheetCreator:
             for prop in properties:
                 # if a property has an array of references (potential 1-to-many relationship)
                 if "items" in properties[prop] and "$ref" in properties[prop]["items"]:
-                    self._add_fields_from_array_of_schemas(entities, entity_title, prop, properties, schema_modules, values)
+                    self._add_fields_from_array_of_schemas(entities, entity_title, prop, properties, schema_modules,
+                                                           values)
                 # if a property does not include a user_friendly tag but includes a reference
                 elif "$ref" in properties[prop]:
                     self._add_fields_from_referenced_schema(prop, properties, schema_modules, values)
@@ -142,8 +144,7 @@ class SpreadsheetCreator:
                  "description": "ID of the sequencing process to which this file relates",
                  "example": None})
 
-    @staticmethod
-    def _build_spreadsheet(values, output_location):
+    def _build_spreadsheet(self, values, output_location):
         wb = Workbook()
 
         # for each tab entry in the values dictionary, create a new worksheet
@@ -156,16 +157,12 @@ class SpreadsheetCreator:
                 col = 1
 
                 # Optional set of descriptors what each of the 3 top rows contains
-                # ws.cell(column=col, row=1, value="Description")
-                # ws.cell(column=col, row=2, value="Example").font = Font(italic=True)
-                # ws.cell(column=col, row=3, value="Header").font = Font(bold=True)
-                # col +=1
-
                 # put each description in row 1, example in row 2 and header in row 3, then increment the column index
                 for header in headers:
-                    ws.cell(column=col, row=1, value=header["description"])
-                    ws.cell(column=col, row=2, value=header["example"]).font = Font(italic=True)
-                    ws.cell(column=col, row=3, value=header["header"]).font = Font(bold=True)
+                    ws.cell(column=col, row=1, value=header["header"]).font = Font(bold=True)
+                    ws.cell(column=col, row=1, value=header["header"]).fill = PatternFill("solid",  fgColor="D9D9D9")
+                    ws.cell(column=col, row=2, value=header["description"]).font = Font(italic=True, color="595959")
+                    ws.cell(column=col, row=3, value=header["example"]).font = Font(color="595959")
                     col += 1
 
         # remove the blank worksheet that is automatically created with the spreadsheet
@@ -174,7 +171,22 @@ class SpreadsheetCreator:
         print("\ncreated spreadsheet with the following tabs:")
         for sheetname in wb.sheetnames:
             print('- ' + sheetname)
+            self._autosize_columns(wb[sheetname])
         wb.save(filename=output_location)
+
+    @staticmethod
+    def _autosize_columns(worksheet):
+        for col in worksheet.columns:
+            max_length = 0
+            column = col[0].column  # Get the column name
+            for cell in col:
+                try:  # Necessary to avoid error on empty cells
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(cell.value)
+                except:
+                    pass
+            adjusted_width = (max_length + 2) * 1.2
+            worksheet.column_dimensions[column].width = adjusted_width
 
 
 if __name__ == '__main__':
@@ -202,17 +214,3 @@ if __name__ == '__main__':
 
     generator = SpreadsheetCreator()
     generator.generate_spreadsheet(options.schema_uri, provided_schema_types, dependencies, options.output)
-
-# Example run:
-# -s "https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/v5_prototype/json_schema/"
-# -t "type/biomaterial/organism.json,type/process/sequencing/library_preparation_process.json"
-# -i "module/biomaterial/homo_sapiens_specific.json,module/biomaterial/familial_relationship.json,module/process/sequencing/barcode.json"
-# -o "/Users/dwelter/Development/HCA/metadata-schema/src/spreadsheet_test.xlsx"
-
-# Full run:
-# -s "https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/v5_prototype/json_schema/"
-# -t "type/project/project.json,type/biomaterial/organism.json,type/biomaterial/organism.json,type/biomaterial/specimen_from_organism.json,type/biomaterial/cell_suspension.json,type/biomaterial/cell_line.json,type/biomaterial/organoid.json,type/process/biomaterial_collection/collection_process.json,type/process/biomaterial_collection/dissociation_process.json,type/process/biomaterial_collection/enrichment_process.json,type/process/sequencing/library_preparation_process.json,type/process/sequencing/sequencing_process.json,type/protocol/protocol.json,type/file/sequence_file.json"
-# -i "module/project/contact.json,module/project/publication.json,module/biomaterial/cell_morphology.json,module/biomaterial/death.json,module/biomaterial/homo_sapiens_specific.json,module/biomaterial/medical_history.json,module/biomaterial/non_homo_sapiens_specific.json,module/biomaterial/state_of_specimen.json,module/biomaterial/familial_relationship.json,module/process/sequencing/barcode.json,module/process/sequencing/well.json"
-# -o "/Users/dwelter/Development/HCA/metadata-schema/src/spreadsheet_test.xlsx"
-
-# python json_to_spreadsheet_template.py -s "https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/v5_prototype/json_schema/" -t "type/biomaterial/organism.json,type/process/sequencing/library_preparation_process.json" -i "module/biomaterial/homo_sapiens_specific.json,module/biomaterial/familial_relationship.json,module/process/sequencing/barcode.json" -o "/Users/dwelter/Development/HCA/metadata-schema/src/spreadsheet_test.xlsx"
