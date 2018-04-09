@@ -158,3 +158,5 @@ fabric.properties
 
 /metadata-spreadsheet-tools.iml
 /.idea/**/*
+/~$output.xlsx
+/output.xlsx
