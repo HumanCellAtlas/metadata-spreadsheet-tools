@@ -176,17 +176,13 @@ class SpreadsheetCreator:
 
     @staticmethod
     def _autosize_columns(worksheet):
-        for col in worksheet.columns:
-            max_length = 0
-            column = col[0].column  # Get the column name
-            for cell in col:
-                try:  # Necessary to avoid error on empty cells
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(cell.value)
-                except:
-                    pass
-            adjusted_width = (max_length + 2) * 1.2
-            worksheet.column_dimensions[column].width = adjusted_width
+        dims = {}
+        for row in worksheet.rows:
+            for cell in row:
+                if cell.value:
+                    dims[cell.column] = max((dims.get(cell.column, 0), len(str(cell.value))))
+        for col, value in dims.items():
+            worksheet.column_dimensions[col].width = value
 
 
 if __name__ == '__main__':
