@@ -78,7 +78,7 @@ class SpreadsheetCreator:
         if "description" in properties[prop]:
             description = properties[prop]["description"]
         if "example" in properties[prop]:
-            example = properties[prop]["example"]
+            example = "e.g. " + str(properties[prop]["example"])
         values.append({"header": properties[prop]["user_friendly"], "description": description,
                        "example": example})
 
