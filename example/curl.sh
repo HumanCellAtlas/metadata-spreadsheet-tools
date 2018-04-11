@@ -9,32 +9,23 @@ curl -X POST \
   -d '{
   "schema_base_uri": "https://schema.humancellatlas.org/",
   "schema_types": [
-    "type/project/5.0.0/project",
-    "type/biomaterial/5.0.0/donor_organism",
-    "type/biomaterial/5.0.0/specimen_from_organism",
-    "type/biomaterial/5.0.0/cell_suspension",
-    "type/biomaterial/5.0.0/cell_line",
-    "type/biomaterial/5.0.0/organoid",
-    "type/process/biomaterial_collection/5.0.0/collection_process",
-    "type/process/biomaterial_collection/5.0.0/dissociation_process",
-    "type/process/biomaterial_collection/5.0.0/enrichment_process",
-    "type/process/sequencing/5.0.0/library_preparation_process",
-    "type/process/sequencing/5.0.0/sequencing_process",
-    "type/protocol/5.0.0/protocol",
-    "type/file/5.0.0/sequence_file"
+    "type/project/5.1.0/project",
+    "type/biomaterial/5.1.0/donor_organism",
+    "type/biomaterial/5.1.0/specimen_from_organism",
+    "type/biomaterial/5.1.0/organoid",
+    "type/process/biomaterial_collection/5.1.0/dissociation_process",
+    "type/process/sequencing/5.1.0/library_preparation_process",
+    "type/process/sequencing/5.1.0/sequencing_process",
+    "type/file/5.1.0/sequence_file",
+    "type/protocol/5.1.0/protocol"
   ],
   "schema_modules": [
-	"module/project/5.0.0/contact",
-	"module/project/5.0.0/publication",
-	"module/biomaterial/5.0.0/cell_morphology",
-	"module/biomateria/5.0.0l/death",
-	"module/biomaterial/5.0.0/homo_sapiens_specific",
-	"module/biomaterial/5.0.0/medical_history",
-	"module/biomaterial/5.0.0/non_homo_sapiens_specific",
-	"module/biomaterial/5.0.0/state_of_specimen",
-	"module/biomaterial/5.0.0/familial_relationship",
-	"module/process/sequencing/5.0.0/barcode",
-	"module/process/sequencing/5.0.0/well"
+    "module/project/5.1.0/contact",
+    "module/biomaterial/5.1.0/cell_morphology",
+    "module/biomaterial/5.1.0/homo_sapiens_specific",
+    "module/biomaterial/5.1.0/medical_history",
+    "module/process/sequencing/5.1.0/barcode",
+    "module/process/sequencing/5.1.0/smartseq2"
   ],
-  "output_filename": "output.xlsx"
+  "output_filename": "Custom_template_spreadsheet_userFriendlyHeaders.xlsx"
 }'
