@@ -160,3 +160,5 @@ fabric.properties
 /.idea/**/*
 /~$output.xlsx
 /output.xlsx
+/example/output.xlsx
+/example/Custom_template_spreadsheet_userFriendlyHeaders.xlsx

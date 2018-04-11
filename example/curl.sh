@@ -5,7 +5,7 @@ curl -X POST \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: f328d526-7bb3-c158-3760-10ffec23fee4' \
-  -o output.xlsx \
+  -o Custom_template_spreadsheet_userFriendlyHeaders.xlsx \
   -d '{
   "schema_base_uri": "https://schema.humancellatlas.org/",
   "schema_types": [

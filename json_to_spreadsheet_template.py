@@ -162,7 +162,7 @@ class SpreadsheetCreator:
                     ws.cell(column=col, row=1, value=header["header"]).font = Font(bold=True)
                     ws.cell(column=col, row=1, value=header["header"]).fill = PatternFill("solid",  fgColor="D9D9D9")
                     ws.cell(column=col, row=2, value=header["description"]).font = Font(italic=True, color="595959")
-                    ws.cell(column=col, row=3, value=header["example"]).font = Font(color="595959")
+                    ws.cell(column=col, row=3, value=header["example"]).font = Font(italic=True, color="595959")
                     col += 1
 
         # remove the blank worksheet that is automatically created with the spreadsheet
