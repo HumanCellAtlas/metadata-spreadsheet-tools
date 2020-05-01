@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Tools for generating metadata spreadsheets",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -19,9 +21,11 @@
     "aws-sdk": "^2.188.0",
     "serverless-apigw-binary": "^0.4.4",
     "serverless-pseudo-parameters": "^1.2.5",
-    "serverless-python-requirements": "^3.0.9"
+    "serverless-python-requirements": "^3.0.9",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "serverless": "^1.26.0"
-  }
+  },
+  "snyk": true
 }
